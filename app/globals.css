@@ -1,0 +1,130 @@
+/* app/globals.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap');
+
+@layer base {
+  :root {
+    --background: 222 20% 6%;
+    --foreground: 210 20% 94%;
+    --card: 222 18% 9%;
+    --card-foreground: 210 20% 94%;
+    --popover: 222 18% 9%;
+    --popover-foreground: 210 20% 94%;
+    --primary: 168 84% 48%;
+    --primary-foreground: 222 20% 6%;
+    --secondary: 222 16% 14%;
+    --secondary-foreground: 210 20% 75%;
+    --muted: 222 16% 12%;
+    --muted-foreground: 215 14% 48%;
+    --accent: 168 84% 48%;
+    --accent-foreground: 222 20% 6%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 210 20% 94%;
+    --border: 222 16% 14%;
+    --input: 222 16% 14%;
+    --ring: 168 84% 48%;
+    --radius: 0.75rem;
+
+    --font-display: 'DM Serif Display', Georgia, serif;
+    --score-emerald: #10b981;
+    --score-amber: #f59e0b;
+    --score-orange: #f97316;
+    --score-red: #ef4444;
+  }
+}
+
+@layer base {
+  * { @apply border-border; }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'DM Sans', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3 {
+    font-family: var(--font-display);
+  }
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: hsl(var(--background)); }
+::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted-foreground)); }
+
+/* ── Grid texture overlay ── */
+.bg-grid {
+  background-image:
+    linear-gradient(hsl(var(--background)) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(var(--background)) 1px, transparent 1px);
+  background-size: 48px 48px;
+  background-color: hsl(222 20% 7%);
+}
+
+/* ── Glow effects ── */
+.glow-emerald { box-shadow: 0 0 30px rgba(16, 185, 129, 0.15); }
+.glow-primary { box-shadow: 0 0 40px rgba(16, 185, 129, 0.1); }
+.text-glow { text-shadow: 0 0 20px rgba(16, 185, 129, 0.4); }
+
+/* ── Glass card ── */
+.glass {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+/* ── Shimmer loader ── */
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    hsl(var(--muted)) 25%,
+    hsl(var(--secondary)) 50%,
+    hsl(var(--muted)) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.8s linear infinite;
+}
+
+/* ── Score ring animation ── */
+.score-ring {
+  transition: stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Keyword badge hover ── */
+.keyword-badge {
+  transition: all 0.15s ease;
+}
+.keyword-badge:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
+
+/* ── Drop zone ── */
+.dropzone-active {
+  border-color: hsl(var(--primary)) !important;
+  background: rgba(16, 185, 129, 0.05) !important;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1), inset 0 0 30px rgba(16, 185, 129, 0.05);
+}
+
+/* ── Analysis card entrance ── */
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.slide-up { animation: slideUp 0.4s ease forwards; }
+.slide-up-1 { animation: slideUp 0.4s 0.05s ease forwards; opacity: 0; }
+.slide-up-2 { animation: slideUp 0.4s 0.10s ease forwards; opacity: 0; }
+.slide-up-3 { animation: slideUp 0.4s 0.15s ease forwards; opacity: 0; }
+.slide-up-4 { animation: slideUp 0.4s 0.20s ease forwards; opacity: 0; }
+.slide-up-5 { animation: slideUp 0.4s 0.25s ease forwards; opacity: 0; }
+
+/* ── Progress bar ── */
+@keyframes progressFill {
+  from { width: 0%; }
+}
+.progress-fill { animation: progressFill 0.8s ease forwards; }
