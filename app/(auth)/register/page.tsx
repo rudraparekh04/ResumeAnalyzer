@@ -19,14 +19,16 @@ export default function RegisterPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+      console.log("DATABASE_URL =", process.env.DATABASE_URL)
+
 //     if (form.password.length < 8) { toast.error('Password must be at least 8 characters'); return }
 //     if (!/[A-Z]/.test(form.password)) {toast.error('Add at least 1 uppercase letter'); return}
 
 // if (!/[a-z]/.test(form.password)) {toast.error('Add at least 1 lowercase letter');return}
 
 // if (!/[0-9]/.test(form.password)) {toast.error('Add at least 1 number');return}
-console.log("Password:", form.password)
-console.log("Regex test:", strongPassword.test(form.password))
+// console.log("Password:", form.password)
+// console.log("Regex test:", strongPassword.test(form.password))
 if (!strongPassword.test(form.password)) {
     console.log("FAILED VALIDATION")
 
