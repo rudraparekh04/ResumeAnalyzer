@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
     const { name, email, password } = schema.parse(body)
-
+ 
     const exists = await prisma.user.findUnique({ where: { email } })
     if (exists) {
       return NextResponse.json({ error: 'Account already exists with this email' }, { status: 409 })
@@ -25,6 +25,8 @@ export async function POST(req: NextRequest) {
       data: { name, email, password: hashed },
       select: { id: true, email: true, name: true },
     })
+      console.log("DB URL:", process.env.DATABASE_URL)
+
 
     return NextResponse.json({ success: true, user }, { status: 201 })
   } catch (e: any) {
