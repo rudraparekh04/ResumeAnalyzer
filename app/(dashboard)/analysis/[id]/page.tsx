@@ -110,7 +110,7 @@ export default async function AnalysisPage({ params }: Props) {
               <h2 className="text-sm font-medium text-foreground">Weaknesses</h2>
             </div>
             <ul className="space-y-3">
-              {weaknesses.map((w, i) => (
+              {weaknesses.map((w:string, i:number) => (
                 <li key={i} className="flex items-start gap-2.5">
                   <div className="w-1.5 h-1.5 rounded-full bg-red-400 mt-2 flex-shrink-0" />
                   <p className="text-sm text-muted-foreground leading-relaxed">{w}</p>
