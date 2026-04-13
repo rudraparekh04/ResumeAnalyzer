@@ -9,6 +9,10 @@ const nextConfig = {
   },
   experimental: {
     serverActions: { bodySizeLimit: '6mb' },
+     serverComponentsExternalPackages: [
+      "@prisma/client",
+      "@prisma/extension-accelerate"
+    ]
   },
 }
 
