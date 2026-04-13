@@ -1,29 +1,26 @@
-// prisma/schema.prisma
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            String     @id @default(cuid())
   name          String?
-  email         String    @unique
+  email         String     @unique
   emailVerified DateTime?
   image         String?
   password      String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
-  accounts   Account[]
-  sessions   Session[]
-  resumes    Resume[]
-  jobMatches JobMatch[]
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  accounts      Account[]
+  jobMatches    JobMatch[]
+  resumes       Resume[]
+  sessions      Session[]
 
   @@map("users")
 }
@@ -34,15 +31,14 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
   @@map("accounts")
@@ -53,8 +49,7 @@ model Session {
   sessionToken String   @unique
   userId       String
   expires      DateTime
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("sessions")
 }
@@ -69,29 +64,27 @@ model VerificationToken {
 }
 
 model Resume {
-  id           String  @id @default(cuid())
+  id           String     @id @default(cuid())
   userId       String
   fileName     String
   originalName String
   fileUrl      String
   fileType     String
-  parsedText   String  @db.Text
+  parsedText   String
   fileSize     Int
-  version      Int     @default(1)
-  isActive     Boolean @default(true)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  analyses   Analysis[]
-  jobMatches JobMatch[]
+  version      Int        @default(1)
+  isActive     Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  analyses     Analysis[]
+  jobMatches   JobMatch[]
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("resumes")
 }
 
 model Analysis {
-  id              String   @id @default(cuid())
+  id              String          @id @default(cuid())
   resumeId        String
   atsScore        Int
   strengths       String[]
@@ -100,12 +93,11 @@ model Analysis {
   improvements    String[]
   sectionFeedback Json
   careerTips      String[]
-  rawResponse     String   @db.Text
+  rawResponse     String
   tokensUsed      Int?
-  createdAt       DateTime @default(now())
-
-  resume         Resume          @relation(fields: [resumeId], references: [id], onDelete: Cascade)
-  bulletRewrites BulletRewrite[]
+  createdAt       DateTime        @default(now())
+  resume          Resume          @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  bulletRewrites  BulletRewrite[]
 
   @@map("analyses")
 }
@@ -115,17 +107,16 @@ model JobMatch {
   userId         String
   resumeId       String
   jobTitle       String
-  jobDescription String   @db.Text
+  jobDescription String
   matchScore     Int
   missingSkills  String[]
   presentSkills  String[]
   suggestions    String[]
   keywordsToAdd  String[]
-  analysis       String   @db.Text
+  analysis       String
   createdAt      DateTime @default(now())
-
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  resume Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  resume         Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("job_matches")
 }
@@ -133,12 +124,11 @@ model JobMatch {
 model BulletRewrite {
   id          String   @id @default(cuid())
   analysisId  String
-  original    String   @db.Text
-  rewritten   String   @db.Text
+  original    String
+  rewritten   String
   improvement String?
   createdAt   DateTime @default(now())
-
-  analysis Analysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+  analysis    Analysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
 
   @@map("bullet_rewrites")
 }
