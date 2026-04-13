@@ -19,7 +19,7 @@ export default function RegisterPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-      console.log("DATABASE_URL =", process.env.DATABASE_URL)
+      // console.log("DATABASE_URL =", process.env.DATABASE_URL)
 
 //     if (form.password.length < 8) { toast.error('Password must be at least 8 characters'); return }
 //     if (!/[A-Z]/.test(form.password)) {toast.error('Add at least 1 uppercase letter'); return}
