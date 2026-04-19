@@ -65,7 +65,7 @@
     "typescript": "^5"
   },
    "prisma": {
-    "schema": "D:/resumeiq/resumeiq/prisma/schema.prisma"
+    "schema": "./prisma/schema.prisma"
   }
 
 }
