@@ -127,7 +127,7 @@ export default async function AnalysisPage({ params }: Props) {
             <h2 className="text-sm font-medium text-foreground">Suggested Improvements</h2>
           </div>
           <div className="grid md:grid-cols-2 gap-3">
-            {improvements.map((imp, i) => (
+            {improvements.map((imp:string, i:number) => (
               <div key={i} className="flex items-start gap-3 p-3 bg-amber-500/5 border border-amber-500/15 rounded-lg">
                 <span className="text-xs font-bold text-amber-400 mt-0.5 flex-shrink-0">{i + 1}</span>
                 <p className="text-sm text-muted-foreground leading-relaxed">{imp}</p>
@@ -144,7 +144,7 @@ export default async function AnalysisPage({ params }: Props) {
             <span className="text-xs text-muted-foreground ml-auto">{missingKeywords.length} keywords to add</span>
           </div>
           <div className="flex flex-wrap gap-2">
-            {missingKeywords.map((kw) => (
+            {missingKeywords.map((kw:string) => (
               <span
                 key={kw}
                 className="keyword-badge text-xs px-3 py-1.5 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-300 cursor-default"
@@ -163,7 +163,7 @@ export default async function AnalysisPage({ params }: Props) {
               <h2 className="text-sm font-medium text-foreground">AI Career Tips</h2>
             </div>
             <div className="space-y-3">
-              {careerTips.map((tip, i) => (
+              {careerTips.map((tip:string, i:number) => (
                 <div key={i} className="flex items-start gap-3 p-3 bg-primary/5 border border-primary/15 rounded-lg">
                   <Sparkles className="w-3.5 h-3.5 text-primary mt-0.5 flex-shrink-0" />
                   <p className="text-sm text-muted-foreground leading-relaxed">{tip}</p>

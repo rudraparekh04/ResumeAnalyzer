@@ -35,20 +35,20 @@ export async function GET(req: NextRequest) {
       }),
     ])
 
-    const scores = allAnalyses.map((a) => a.atsScore)
+    const scores = allAnalyses.map((analysis: { atsScore: number }) => analysis.atsScore)
     const stats = {
       totalResumes: resumes.length,
       totalAnalyses: allAnalyses.length,
       totalJobMatches: jobMatches.length,
-      averageScore: scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0,
+      averageScore: scores.length ? Math.round(scores.reduce((total: number, score: number) => total + score, 0) / scores.length) : 0,
       bestScore: scores.length ? Math.max(...scores) : 0,
       latestScore: scores.length ? scores[scores.length - 1] : null,
     }
 
     // Score timeline for chart (last 10 analyses)
-    const scoreTimeline = allAnalyses.slice(-10).map((a) => ({
-      date: a.createdAt,
-      score: a.atsScore,
+    const scoreTimeline = allAnalyses.slice(-10).map((analysis: { createdAt: Date; atsScore: number }) => ({
+      date: analysis.createdAt,
+      score: analysis.atsScore,
     }))
 
     return NextResponse.json({ stats, resumes, jobMatches, scoreTimeline })

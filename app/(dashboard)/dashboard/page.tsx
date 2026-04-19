@@ -1,13 +1,38 @@
 // app/(dashboard)/dashboard/page.tsx
 import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
 import { Upload, TrendingUp, FileText, Target, ArrowRight, Plus, Clock } from 'lucide-react'
+
 import { ScoreChart } from '@/components/dashboard/ScoreChart'
+import { authOptions } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
 import { cn, getScoreTailwind, timeAgo } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
+
+type DashboardAnalysis = {
+  atsScore: number
+  createdAt: Date
+}
+
+type DashboardResume = {
+  id: string
+  originalName: string
+  createdAt: Date
+  version: number
+  analyses: Array<{
+    id: string
+    atsScore: number
+    createdAt: Date
+  }>
+}
+
+type DashboardJobMatch = {
+  id: string
+  jobTitle: string
+  matchScore: number
+  createdAt: Date
+}
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions)
@@ -17,7 +42,11 @@ export default async function DashboardPage() {
     prisma.resume.findMany({
       where: { userId, isActive: true },
       include: {
-        analyses: { orderBy: { createdAt: 'desc' }, take: 1, select: { id: true, atsScore: true, createdAt: true } },
+        analyses: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+          select: { id: true, atsScore: true, createdAt: true },
+        },
       },
       orderBy: { createdAt: 'desc' },
       take: 5,
@@ -36,28 +65,29 @@ export default async function DashboardPage() {
     }),
   ])
 
-  const scores = allAnalyses.map(a => a.atsScore)
-  const avgScore = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0
+  const scores = allAnalyses.map((analysis: DashboardAnalysis) => analysis.atsScore)
+  const avgScore = scores.length
+    ? Math.round(scores.reduce((total: number, score: number) => total + score, 0) / scores.length)
+    : 0
   const bestScore = scores.length ? Math.max(...scores) : 0
   const latestScore = scores.length ? scores[scores.length - 1] : null
 
-  const chartData = allAnalyses.map((a, i) => ({
-    name: `#${i + 1}`,
-    score: a.atsScore,
-    date: new Date(a.createdAt).toLocaleDateString(),
+  const chartData = allAnalyses.map((analysis: DashboardAnalysis, index: number) => ({
+    name: `#${index + 1}`,
+    score: analysis.atsScore,
+    date: new Date(analysis.createdAt).toLocaleDateString(),
   }))
 
   const stats = [
     { label: 'Resumes', value: resumes.length, icon: FileText, color: 'text-blue-400' },
     { label: 'Analyses', value: allAnalyses.length, icon: TrendingUp, color: 'text-primary' },
     { label: 'Job Matches', value: jobMatches.length, icon: Target, color: 'text-purple-400' },
-    { label: 'Avg ATS Score', value: avgScore ? `${avgScore}` : '—', icon: TrendingUp, color: getScoreTailwind(avgScore).text },
+    { label: 'Avg ATS Score', value: avgScore ? `${avgScore}` : '-', icon: TrendingUp, color: getScoreTailwind(avgScore).text },
   ]
 
   return (
     <div className="p-8">
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-display text-foreground">Dashboard</h1>
@@ -74,21 +104,19 @@ export default async function DashboardPage() {
           </Link>
         </div>
 
-        {/* Stats grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          {stats.map((s) => (
-            <div key={s.label} className="bg-card border border-border rounded-xl p-5">
+          {stats.map((stat) => (
+            <div key={stat.label} className="bg-card border border-border rounded-xl p-5">
               <div className="flex items-center justify-between mb-3">
-                <span className="text-xs text-muted-foreground">{s.label}</span>
-                <s.icon className={cn('w-4 h-4', s.color)} />
+                <span className="text-xs text-muted-foreground">{stat.label}</span>
+                <stat.icon className={cn('w-4 h-4', stat.color)} />
               </div>
-              <p className={cn('text-3xl font-display', s.color)}>{s.value}</p>
+              <p className={cn('text-3xl font-display', stat.color)}>{stat.value}</p>
             </div>
           ))}
         </div>
 
         <div className="grid md:grid-cols-2 gap-6 mb-8">
-          {/* Score timeline chart */}
           <div className="bg-card border border-border rounded-xl p-6">
             <h2 className="text-sm font-medium text-foreground mb-1">ATS Score Timeline</h2>
             <p className="text-xs text-muted-foreground mb-4">Score progression across analyses</p>
@@ -98,12 +126,13 @@ export default async function DashboardPage() {
               <div className="h-48 flex flex-col items-center justify-center text-center">
                 <TrendingUp className="w-8 h-8 text-muted-foreground/30 mb-2" />
                 <p className="text-sm text-muted-foreground">No analyses yet</p>
-                <Link href="/upload" className="text-xs text-primary mt-1 hover:underline">Upload a resume to start</Link>
+                <Link href="/upload" className="text-xs text-primary mt-1 hover:underline">
+                  Upload a resume to start
+                </Link>
               </div>
             )}
           </div>
 
-          {/* Score summary */}
           <div className="bg-card border border-border rounded-xl p-6">
             <h2 className="text-sm font-medium text-foreground mb-4">Score Summary</h2>
             <div className="space-y-4">
@@ -119,15 +148,19 @@ export default async function DashboardPage() {
                       <div className="w-32 h-1.5 bg-secondary rounded-full overflow-hidden">
                         <div
                           className="h-full rounded-full transition-all"
-                          style={{ width: `${value}%`, backgroundColor: getScoreTailwind(value).text.replace('text-', '').includes('emerald') ? '#10b981' : '#f59e0b' }}
+                          style={{
+                            width: `${value}%`,
+                            backgroundColor: getScoreTailwind(value).text.replace('text-', '').includes('emerald') ? '#10b981' : '#f59e0b',
+                          }}
                         />
                       </div>
                       <span className={cn('text-sm font-medium tabular-nums', getScoreTailwind(value).text)}>
-                        {value}{suffix}
+                        {value}
+                        {suffix}
                       </span>
                     </div>
                   ) : (
-                    <span className="text-xs text-muted-foreground">—</span>
+                    <span className="text-xs text-muted-foreground">-</span>
                   )}
                 </div>
               ))}
@@ -135,7 +168,6 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        {/* Recent resumes */}
         <div className="bg-card border border-border rounded-xl mb-6">
           <div className="flex items-center justify-between px-6 py-4 border-b border-border">
             <h2 className="text-sm font-medium text-foreground">Recent Resumes</h2>
@@ -153,22 +185,23 @@ export default async function DashboardPage() {
             </div>
           ) : (
             <div className="divide-y divide-border">
-              {resumes.map((r) => {
-                const latest = r.analyses[0]
+              {resumes.map((resume: DashboardResume) => {
+                const latest = resume.analyses[0]
                 const colors = latest ? getScoreTailwind(latest.atsScore) : null
+
                 return (
-                  <div key={r.id} className="flex items-center justify-between px-6 py-4 hover:bg-secondary/20 transition-colors group">
+                  <div key={resume.id} className="flex items-center justify-between px-6 py-4 hover:bg-secondary/20 transition-colors group">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center">
                         <FileText className="w-4 h-4 text-muted-foreground" />
                       </div>
                       <div>
                         <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
-                          {r.originalName}
+                          {resume.originalName}
                         </p>
                         <div className="flex items-center gap-2 mt-0.5">
                           <Clock className="w-3 h-3 text-muted-foreground" />
-                          <span className="text-xs text-muted-foreground">{timeAgo(r.createdAt)} · v{r.version}</span>
+                          <span className="text-xs text-muted-foreground">{timeAgo(resume.createdAt)} - v{resume.version}</span>
                         </div>
                       </div>
                     </div>
@@ -182,7 +215,7 @@ export default async function DashboardPage() {
                       )}
                       {latest && (
                         <Link href={`/analysis/${latest.id}`} className="text-xs text-primary hover:text-primary/80 opacity-0 group-hover:opacity-100 transition-opacity">
-                          View →
+                          View
                         </Link>
                       )}
                     </div>
@@ -193,23 +226,23 @@ export default async function DashboardPage() {
           )}
         </div>
 
-        {/* Recent job matches */}
         {jobMatches.length > 0 && (
           <div className="bg-card border border-border rounded-xl">
             <div className="px-6 py-4 border-b border-border">
               <h2 className="text-sm font-medium text-foreground">Recent Job Matches</h2>
             </div>
             <div className="divide-y divide-border">
-              {jobMatches.map((jm) => {
-                const colors = getScoreTailwind(jm.matchScore)
+              {jobMatches.map((jobMatch: DashboardJobMatch) => {
+                const colors = getScoreTailwind(jobMatch.matchScore)
+
                 return (
-                  <div key={jm.id} className="flex items-center justify-between px-6 py-4">
+                  <div key={jobMatch.id} className="flex items-center justify-between px-6 py-4">
                     <div>
-                      <p className="text-sm font-medium text-foreground">{jm.jobTitle}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">{timeAgo(jm.createdAt)}</p>
+                      <p className="text-sm font-medium text-foreground">{jobMatch.jobTitle}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{timeAgo(jobMatch.createdAt)}</p>
                     </div>
                     <span className={cn('text-xs font-medium px-2.5 py-1 rounded-lg border', colors.text, colors.bg, colors.border)}>
-                      {jm.matchScore}% match
+                      {jobMatch.matchScore}% match
                     </span>
                   </div>
                 )
