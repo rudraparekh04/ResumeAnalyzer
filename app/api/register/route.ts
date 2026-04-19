@@ -14,6 +14,7 @@ const schema = z.object({
 
 export async function POST(req: NextRequest) {
   try {
+    console.log("DB URL at runtime:", process.env.DATABASE_URL)
     const body = await req.json()
     const { name, email, password } = schema.parse(body)
  
@@ -35,7 +36,6 @@ export async function POST(req: NextRequest) {
     if (e instanceof z.ZodError) {
       return NextResponse.json({ error: e.errors[0]?.message ?? 'Validation error' }, { status: 400 })
     }
-    console.log("DB URL at runtime:", process.env.DATABASE_URL)
     console.error('[REGISTER]', e)
     return NextResponse.json({ error: 'Registration failed. Please try again.' }, { status: 500 })
   }
